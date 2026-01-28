@@ -14,7 +14,6 @@
         rgba(255,232,242,1) 36%,
         rgba(255,255,255,1) 100%
       );
-      transition: background 2s ease;
     }
 
     .big-yes-bg {
@@ -33,6 +32,31 @@
       font-weight: 900;
       color: rgba(255,255,255,0.35);
       pointer-events: none;
+    }
+
+    /* Confetti pile */
+    #confettiPile {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 50;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      animation: fall linear forwards;
+    }
+
+    @keyframes fall {
+      from { transform: translateY(-100vh); }
+      to   { transform: translateY(0); }
     }
 
     button {
@@ -65,43 +89,35 @@
     </div>
   </div>
 
-  <script type="module">
-    import confetti from "https://cdn.skypack.dev/canvas-confetti";
+  <div id="confettiPile"></div>
 
+  <script type="module">
     const body = document.getElementById("body");
     const yesButton = document.getElementById("yesButton");
     const noButton = document.getElementById("noButton");
     const responseButtons = document.getElementById("responseButtons");
     const imageDisplay = document.getElementById("imageDisplay");
     const valentineQuestion = document.getElementById("valentineQuestion");
+    const pile = document.getElementById("confettiPile");
 
     let noClicks = 0;
 
-    // YES chase tuning
-    let chaseStrength = 0.00001;       // barely alive at start
-    const MAX_CHASE = 0.002;           // final speed (what you liked)
-    const MAX_NO_CLICKS = 7;           
+    /* YES chase */
+    let chaseStrength = 0.00001;
+    const MAX_CHASE = 0.002;
+    const MAX_NO_CLICKS = 7;
 
     let mouseX = 0, mouseY = 0;
     let yesX = 0, yesY = 0;
 
-    const images = [
-      "./images/image1.gif",
-      "./images/image2.gif",
-      "./images/image3.gif",
-      "./images/image4.gif",
-      "./images/image5.gif",
-      "./images/image6.gif",
-      "./images/image7.gif"
-    ];
+    const colors = ["#ff6b9c", "#ffd166", "#06d6a0", "#4dabf7", "#f06595"];
+    let pileHeight = 0;
 
-    // Track mouse position
     document.addEventListener("mousemove", e => {
       mouseX = e.clientX;
       mouseY = e.clientY;
     });
 
-    // YES button gently (then not-so-gently) chases cursor
     function chaseYes() {
       const rect = yesButton.getBoundingClientRect();
       yesX += (mouseX - rect.left - rect.width / 2) * chaseStrength;
@@ -111,58 +127,53 @@
     }
     chaseYes();
 
-    // NO button starts evading
     function enableNoEvade() {
       noButton.addEventListener("mouseenter", () => {
-        const x = Math.random() * (window.innerWidth - 120);
-        const y = Math.random() * (window.innerHeight - 60);
         noButton.style.position = "fixed";
-        noButton.style.left = `${x}px`;
-        noButton.style.top = `${y}px`;
+        noButton.style.left = Math.random() * (window.innerWidth - 120) + "px";
+        noButton.style.top = Math.random() * (window.innerHeight - 60) + "px";
       });
     }
 
     noButton.addEventListener("click", () => {
       noClicks++;
 
-      imageDisplay.src =
-        images[Math.min(noClicks, images.length - 1)];
-
-      // Progress from 0 → 1
       const progress = Math.min(noClicks / MAX_NO_CLICKS, 1);
-
-      // Exponent ramps from 2 → 6
       const exponent = 2 + progress * 4;
-
-      // Apply eased chase
       chaseStrength = MAX_CHASE * Math.pow(progress, exponent);
 
       if (noClicks === 5) enableNoEvade();
-
       if (noClicks >= 7) {
         body.classList.add("big-yes-bg");
         body.addEventListener("click", yesOutcome);
       }
     });
 
-    function startConfettiEscalation() {
-      let particles = 8;
-      let spread = 25;
+    function spawnConfettiLayer() {
+      const layerHeight = 8;
+      pileHeight += layerHeight;
+      pile.style.height = pileHeight + "px";
+
+      for (let i = 0; i < 60; i++) {
+        const piece = document.createElement("div");
+        piece.className = "confetti-piece";
+        piece.style.left = Math.random() * 100 + "%";
+        piece.style.bottom = pileHeight - layerHeight + "px";
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDuration = "1s";
+        pile.appendChild(piece);
+      }
+    }
+
+    function startConfettiPile() {
+      const totalLayers = 60; // ~1 minute
+      let count = 0;
 
       const interval = setInterval(() => {
-        confetti({
-          particleCount: particles,
-          spread: spread,
-          origin: { y: 0.6 }
-        });
-
-        particles += 10;
-        spread += 5;
-
-        if (particles >= 300) {
-          clearInterval(interval);
-        }
-      }, 1800); // ~2 minutes total
+        spawnConfettiLayer();
+        count++;
+        if (count >= totalLayers) clearInterval(interval);
+      }, 1000);
     }
 
     function yesOutcome() {
@@ -177,7 +188,7 @@
       valentineQuestion.textContent =
         "Yayyy!! 💖 You said yes 🥺💗 I'm the luckiest person ever.";
 
-      startConfettiEscalation();
+      startConfettiPile();
 
       setTimeout(() => {
         valentineQuestion.textContent =
