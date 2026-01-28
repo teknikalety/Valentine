@@ -44,20 +44,34 @@
   <div class="flex items-center justify-center h-screen">
     <div class="flex flex-col items-center text-center p-4">
 
-      <img id="imageDisplay" src="./images/image1.gif" class="rounded-md h-[300px]" />
+      <img
+        id="imageDisplay"
+        src="./images/image1.gif"
+        class="rounded-md h-[300px]"
+      />
 
-      <h2 id="valentineQuestion" class="text-4xl font-bold italic text-[#bd1e59] my-4">
+      <h2
+        id="valentineQuestion"
+        class="text-4xl font-bold italic text-[#bd1e59] my-4"
+      >
         Will you be my Valentine Mooncake? 🥺👉👈
       </h2>
 
-      <div class="flex gap-4 pt-5 items-center" id="responseButtons">
-        <button id="yesButton"
-          class="bg-green-500 hover:bg-green-400 text-white rounded-md text-xl px-4 py-2">
+      <div
+        class="flex gap-4 pt-5 items-center"
+        id="responseButtons"
+      >
+        <button
+          id="yesButton"
+          class="bg-green-500 hover:bg-green-400 text-white rounded-md text-xl px-4 py-2"
+        >
           Yes
         </button>
 
-        <button id="noButton"
-          class="bg-red-500 hover:bg-red-700 text-white rounded-md text-xl px-4 py-2">
+        <button
+          id="noButton"
+          class="bg-red-500 hover:bg-red-700 text-white rounded-md text-xl px-4 py-2"
+        >
           No
         </button>
       </div>
@@ -76,13 +90,28 @@
 
     let noClicks = 0;
 
-    /* YES chase */
+    /* Image sequence (NO clicks) */
+    const images = [
+      "./images/image1.gif",
+      "./images/image2.gif",
+      "./images/image3.gif",
+      "./images/image4.gif",
+      "./images/image5.gif",
+      "./images/image6.gif"
+    ];
+
+    /* YES chase tuning */
     let chaseStrength = 0.00001;
     const MAX_CHASE = 0.002;
     const MAX_NO_CLICKS = 7;
 
     let mouseX = 0, mouseY = 0;
     let yesX = 0, yesY = 0;
+
+    /* YES size growth */
+    let yesFontSize = 20;
+    let yesPaddingX = 16;
+    let yesPaddingY = 8;
 
     document.addEventListener("mousemove", e => {
       mouseX = e.clientX;
@@ -101,14 +130,29 @@
     function enableNoEvade() {
       noButton.addEventListener("mouseenter", () => {
         noButton.style.position = "fixed";
-        noButton.style.left = Math.random() * (window.innerWidth - 120) + "px";
-        noButton.style.top = Math.random() * (window.innerHeight - 60) + "px";
+        noButton.style.left =
+          Math.random() * (window.innerWidth - 140) + "px";
+        noButton.style.top =
+          Math.random() * (window.innerHeight - 70) + "px";
       });
     }
 
     noButton.addEventListener("click", () => {
       noClicks++;
 
+      /* Cycle image */
+      const imgIndex = Math.min(noClicks, images.length - 1);
+      imageDisplay.src = images[imgIndex];
+
+      /* YES grows */
+      yesFontSize += 10;
+      yesPaddingX += 10;
+      yesPaddingY += 6;
+      yesButton.style.fontSize = `${yesFontSize}px`;
+      yesButton.style.padding =
+        `${yesPaddingY}px ${yesPaddingX}px`;
+
+      /* YES chase speed (2 → 6 ramp) */
       const progress = Math.min(noClicks / MAX_NO_CLICKS, 1);
       const exponent = 2 + progress * 4;
       chaseStrength = MAX_CHASE * Math.pow(progress, exponent);
@@ -122,7 +166,7 @@
     });
 
     function startConfettiShow() {
-      const duration = 60000; // 1 minute
+      const duration = 60000;
       const end = Date.now() + duration;
 
       (function frame() {
@@ -131,10 +175,7 @@
           spread: 70,
           origin: { x: Math.random(), y: 0 }
         });
-
-        if (Date.now() < end) {
-          requestAnimationFrame(frame);
-        }
+        if (Date.now() < end) requestAnimationFrame(frame);
       })();
     }
 
@@ -147,6 +188,7 @@
       noButton.remove();
 
       imageDisplay.src = "./images/image7.gif";
+
       valentineQuestion.textContent =
         "Yayyy!! 💖 You said yes 🥺💗 I'm the luckiest person ever.";
 
