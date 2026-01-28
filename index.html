@@ -76,7 +76,12 @@
     const valentineQuestion = document.getElementById("valentineQuestion");
 
     let noClicks = 0;
-    let chaseStrength = 0.002;
+
+    // YES chase tuning
+    let chaseStrength = 0.00001;       // barely alive at start
+    const MAX_CHASE = 0.002;           // final speed (what you liked)
+    const MAX_NO_CLICKS = 7;           
+
     let mouseX = 0, mouseY = 0;
     let yesX = 0, yesY = 0;
 
@@ -90,13 +95,13 @@
       "./images/image7.gif"
     ];
 
-    // Track mouse
+    // Track mouse position
     document.addEventListener("mousemove", e => {
       mouseX = e.clientX;
       mouseY = e.clientY;
     });
 
-    // YES button chases cursor (subtle → obvious)
+    // YES button gently (then not-so-gently) chases cursor
     function chaseYes() {
       const rect = yesButton.getBoundingClientRect();
       yesX += (mouseX - rect.left - rect.width / 2) * chaseStrength;
@@ -106,11 +111,11 @@
     }
     chaseYes();
 
-    // NO button runs away
+    // NO button starts evading
     function enableNoEvade() {
       noButton.addEventListener("mouseenter", () => {
-        const x = Math.random() * (window.innerWidth - 100);
-        const y = Math.random() * (window.innerHeight - 50);
+        const x = Math.random() * (window.innerWidth - 120);
+        const y = Math.random() * (window.innerHeight - 60);
         noButton.style.position = "fixed";
         noButton.style.left = `${x}px`;
         noButton.style.top = `${y}px`;
@@ -119,8 +124,18 @@
 
     noButton.addEventListener("click", () => {
       noClicks++;
-      chaseStrength += 0.002;
-      imageDisplay.src = images[Math.min(noClicks, images.length - 1)];
+
+      imageDisplay.src =
+        images[Math.min(noClicks, images.length - 1)];
+
+      // Progress from 0 → 1
+      const progress = Math.min(noClicks / MAX_NO_CLICKS, 1);
+
+      // Exponent ramps from 2 → 6
+      const exponent = 2 + progress * 4;
+
+      // Apply eased chase
+      chaseStrength = MAX_CHASE * Math.pow(progress, exponent);
 
       if (noClicks === 5) enableNoEvade();
 
@@ -131,11 +146,10 @@
     });
 
     function startConfettiEscalation() {
-      let particles = 10;
-      let spread = 30;
-      let interval = 1800;
+      let particles = 8;
+      let spread = 25;
 
-      const confettiInterval = setInterval(() => {
+      const interval = setInterval(() => {
         confetti({
           particleCount: particles,
           spread: spread,
@@ -143,12 +157,12 @@
         });
 
         particles += 10;
-        spread += 4;
+        spread += 5;
 
         if (particles >= 300) {
-          clearInterval(confettiInterval);
+          clearInterval(interval);
         }
-      }, interval);
+      }, 1800); // ~2 minutes total
     }
 
     function yesOutcome() {
