@@ -34,31 +34,6 @@
       pointer-events: none;
     }
 
-    /* Confetti pile */
-    #confettiPile {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 0;
-      pointer-events: none;
-      overflow: hidden;
-      z-index: 50;
-    }
-
-    .confetti-piece {
-      position: absolute;
-      width: 8px;
-      height: 8px;
-      border-radius: 2px;
-      animation: fall linear forwards;
-    }
-
-    @keyframes fall {
-      from { transform: translateY(-100vh); }
-      to   { transform: translateY(0); }
-    }
-
     button {
       transition: all 0.25s ease;
     }
@@ -89,16 +64,15 @@
     </div>
   </div>
 
-  <div id="confettiPile"></div>
-
   <script type="module">
+    import confetti from "https://cdn.skypack.dev/canvas-confetti";
+
     const body = document.getElementById("body");
     const yesButton = document.getElementById("yesButton");
     const noButton = document.getElementById("noButton");
     const responseButtons = document.getElementById("responseButtons");
     const imageDisplay = document.getElementById("imageDisplay");
     const valentineQuestion = document.getElementById("valentineQuestion");
-    const pile = document.getElementById("confettiPile");
 
     let noClicks = 0;
 
@@ -109,9 +83,6 @@
 
     let mouseX = 0, mouseY = 0;
     let yesX = 0, yesY = 0;
-
-    const colors = ["#ff6b9c", "#ffd166", "#06d6a0", "#4dabf7", "#f06595"];
-    let pileHeight = 0;
 
     document.addEventListener("mousemove", e => {
       mouseX = e.clientX;
@@ -143,37 +114,28 @@
       chaseStrength = MAX_CHASE * Math.pow(progress, exponent);
 
       if (noClicks === 5) enableNoEvade();
+
       if (noClicks >= 7) {
         body.classList.add("big-yes-bg");
         body.addEventListener("click", yesOutcome);
       }
     });
 
-    function spawnConfettiLayer() {
-      const layerHeight = 8;
-      pileHeight += layerHeight;
-      pile.style.height = pileHeight + "px";
+    function startConfettiShow() {
+      const duration = 60000; // 1 minute
+      const end = Date.now() + duration;
 
-      for (let i = 0; i < 60; i++) {
-        const piece = document.createElement("div");
-        piece.className = "confetti-piece";
-        piece.style.left = Math.random() * 100 + "%";
-        piece.style.bottom = pileHeight - layerHeight + "px";
-        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-        piece.style.animationDuration = "1s";
-        pile.appendChild(piece);
-      }
-    }
+      (function frame() {
+        confetti({
+          particleCount: 4,
+          spread: 70,
+          origin: { x: Math.random(), y: 0 }
+        });
 
-    function startConfettiPile() {
-      const totalLayers = 60; // ~1 minute
-      let count = 0;
-
-      const interval = setInterval(() => {
-        spawnConfettiLayer();
-        count++;
-        if (count >= totalLayers) clearInterval(interval);
-      }, 1000);
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      })();
     }
 
     function yesOutcome() {
@@ -188,7 +150,7 @@
       valentineQuestion.textContent =
         "Yayyy!! 💖 You said yes 🥺💗 I'm the luckiest person ever.";
 
-      startConfettiPile();
+      startConfettiShow();
 
       setTimeout(() => {
         valentineQuestion.textContent =
