@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Valentines Day</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
     .gradient-background {
-      background: rgb(255, 208, 229);
       background: linear-gradient(
         180deg,
         rgba(255, 208, 229, 1) 0%,
@@ -21,28 +21,26 @@
     }
 
     @keyframes bounce2 {
-      0%, 20%, 50%, 80%, 100% {
-        transform: translateY(0);
-      }
-      40% {
-        transform: translateY(-20px);
-      }
-      60% {
-        transform: translateY(-10px);
-      }
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-20px); }
+      60% { transform: translateY(-10px); }
     }
 
-    /* Smooth transitions for buttons */
     button {
       transition: all 0.3s ease;
     }
 
-    /* Prevent YES button overflow */
     #yesButton {
       max-width: 90vw;
       max-height: 90vh;
       white-space: normal;
       text-align: center;
+    }
+
+    .yes-spawn {
+      position: fixed;
+      z-index: 999;
+      pointer-events: auto;
     }
   </style>
 </head>
@@ -54,7 +52,6 @@
       <img
         id="imageDisplay"
         src="./images/image1.gif"
-        alt="Cute kitten with flowers"
         class="rounded-md h-[300px]"
         style="object-fit: cover;"
       />
@@ -70,20 +67,17 @@
         made with love 💌
       </p>
 
-      <div
-        class="flex gap-4 pt-[20px] items-center"
-        id="responseButtons"
-      >
+      <div class="flex gap-4 pt-5 items-center" id="responseButtons">
         <button
           id="yesButton"
-          class="bounce2 inline-flex items-center justify-center whitespace-nowrap rounded-md text-[20px] font-medium hover:bg-green-400 min-h-12 min-w-[75px] px-4 py-2 bg-green-500 text-white transition"
+          class="bounce2 bg-green-500 hover:bg-green-400 text-white rounded-md text-xl px-4 py-2"
         >
           Yes
         </button>
 
         <button
           id="noButton"
-          class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-[20px] font-medium transition hover:bg-red-700 h-12 min-w-[75px] w-auto px-4 py-2 bg-red-500 text-white"
+          class="bg-red-500 hover:bg-red-700 text-white rounded-md text-xl px-4 py-2"
         >
           No
         </button>
@@ -94,11 +88,11 @@
   <script type="module">
     import confetti from 'https://cdn.skypack.dev/canvas-confetti';
 
-    const yesButton = document.getElementById('yesButton');
-    const noButton = document.getElementById('noButton');
-    const imageDisplay = document.getElementById('imageDisplay');
-    const valentineQuestion = document.getElementById('valentineQuestion');
-    const responseButtons = document.getElementById('responseButtons');
+    const yesButton = document.getElementById("yesButton");
+    const noButton = document.getElementById("noButton");
+    const imageDisplay = document.getElementById("imageDisplay");
+    const valentineQuestion = document.getElementById("valentineQuestion");
+    const responseButtons = document.getElementById("responseButtons");
 
     let noClickCount = 0;
     let buttonHeight = 48;
@@ -115,100 +109,20 @@
       "./images/image7.gif"
     ];
 
-    // Helper function: spawn YES buttons all over screen
+    function removeSpawnedYesButtons() {
+      document.querySelectorAll(".yes-spawn").forEach(btn => btn.remove());
+    }
+
     function spawnYesButtons() {
       responseButtons.style.display = "none";
 
-      for (let i = 0; i < 20; i++) {
-        const btn = document.createElement("button");
-        btn.textContent = "YES 💖";
-        btn.className =
-          "fixed bg-green-500 hover:bg-green-400 text-white font-bold rounded-md px-6 py-4 text-xl z-50 yes-spawn";
+      const spacing = 90; // distance between buttons
+      const rows = Math.ceil(window.innerHeight / spacing);
+      const cols = Math.ceil(window.innerWidth / spacing);
 
-        btn.style.top = Math.random() * 90 + "vh";
-        btn.style.left = Math.random() * 90 + "vw";
-
-        // Clicking any spawned YES triggers the main YES handler
-        btn.addEventListener("click", () => {
-          removeSpawnedYesButtons();
-          yesButton.click();
-        });
-
-        document.body.appendChild(btn);
-      }
-    }
-
-    // Remove all spawned YES buttons
-    function removeSpawnedYesButtons() {
-      const spawned = document.querySelectorAll(".yes-spawn");
-      spawned.forEach(btn => btn.remove());
-    }
-
-    // NO button logic with escalation + final chaos
-    noButton.addEventListener('click', () => {
-      noClickCount++;
-
-      imageDisplay.src =
-        imagePaths[Math.min(noClickCount, imagePaths.length - 1)];
-
-      // Grow YES button aggressively
-      buttonHeight += 30;
-      buttonWidth += 30;
-      fontSize += 15;
-
-      yesButton.style.height = `${buttonHeight}px`;
-      yesButton.style.width = `${buttonWidth}px`;
-      yesButton.style.fontSize = `${fontSize}px`;
-
-      const messages = [
-        "No",
-        "I will never speak to you again, are you sure?",
-        "Pookie pweaseeeeeeeee 💗",
-        "Don't do this to meeeeeee 😭",
-        "You're breaking my heart 💔",
-        "I'm gonna cry...",
-        "Okay this is getting ridiculous",
-        "You have no choice now 😌"
-      ];
-
-      noButton.textContent =
-        messages[Math.min(noClickCount, messages.length - 1)];
-
-      // Final stage chaos
-      if (noClickCount >= 7) {
-        spawnYesButtons();
-      }
-    });
-
-    // YES button logic
-    yesButton.addEventListener('click', () => {
-      // Remove any spawned YES buttons before showing final outcome
-      removeSpawnedYesButtons();
-
-      imageDisplay.src = "./images/image7.gif";
-
-      valentineQuestion.textContent =
-        "Yayyy!! 💖 You said yes 🥺💗 I'm the luckiest person ever. I can't wait to be your Valentine 🥰";
-
-      responseButtons.style.display = "none";
-
-      confetti({
-        particleCount: 150,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
-
-      // Delayed second messages
-      setTimeout(() => {
-        valentineQuestion.textContent =
-          "I can't wait to be your Valentine, Mooncake 🥰";
-      }, 1500);
-
-      setTimeout(() => {
-        valentineQuestion.textContent =
-          "Now you’re stuck with me 😌💘";
-      }, 3500);
-    });
-  </script>
-</body>
-</html>
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const btn = document.createElement("button");
+          btn.textContent = "YES 💖";
+          btn.className =
+            "yes-spawn bg-green-500 hover:bg-green-400 text-white font-bold rounded-md px-6 py-4 text
