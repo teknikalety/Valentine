@@ -100,6 +100,18 @@
       "./images/image6.gif"
     ];
 
+    /* NO button messages */
+    const noMessages = [
+      "No",
+      "I will never speak to you again, are you sure?",
+      "Pookie pweaseeeeeeeee 💗",
+      "Don't do this to meeeeeee 😭",
+      "You're breaking my heart 💔",
+      "I'm gonna cry...",
+      "Okay this is getting ridiculous",
+      "You have no choice now 😌"
+    ];
+
     /* YES chase tuning */
     let chaseStrength = 0.00001;
     const MAX_CHASE = 0.002;
@@ -143,6 +155,10 @@
       /* Cycle image */
       const imgIndex = Math.min(noClicks, images.length - 1);
       imageDisplay.src = images[imgIndex];
+
+      /* Update NO message */
+      const msgIndex = Math.min(noClicks, noMessages.length - 1);
+      noButton.textContent = noMessages[msgIndex];
 
       /* YES grows */
       yesFontSize += 10;
