@@ -38,17 +38,15 @@
       transition: all 0.25s ease;
     }
 
-    /* Bounce/jiggle animation */
-    @keyframes yesBounce {
-      0% { transform: scale(1) rotate(0deg); }
-      20% { transform: scale(1.2) rotate(-10deg); }
-      50% { transform: scale(0.9) rotate(10deg); }
-      70% { transform: scale(1.1) rotate(-5deg); }
-      100% { transform: scale(1) rotate(0deg); }
+    /* Ensure NO button is always on top */
+    #noButton {
+      position: relative;
+      z-index: 1000;
     }
 
-    .bounce-animation {
-      animation: yesBounce 0.5s ease;
+    #yesButton {
+      position: relative;
+      z-index: 500;
     }
   </style>
 </head>
@@ -138,55 +136,20 @@
     let yesPaddingX = 16;
     let yesPaddingY = 8;
 
-    /* Bounce velocities for collision */
-    let velX = 0;
-    let velY = 0;
-
     document.addEventListener("mousemove", e => {
       mouseX = e.clientX;
       mouseY = e.clientY;
     });
 
-    // YES chase with bounce/jiggle
+    // YES chase function
     function chaseYes() {
       const yesRect = yesButton.getBoundingClientRect();
-      const noRect = noButton.getBoundingClientRect();
 
       let deltaX = (mouseX - yesRect.left - yesRect.width / 2) * chaseStrength;
       let deltaY = (mouseY - yesRect.top - yesRect.height / 2) * chaseStrength;
 
-      deltaX += velX;
-      deltaY += velY;
-
-      let nextX = yesX + deltaX;
-      let nextY = yesY + deltaY;
-
-      const futureLeft = yesRect.left + nextX - yesX;
-      const futureTop = yesRect.top + nextY - yesY;
-      const futureRight = futureLeft + yesRect.width;
-      const futureBottom = futureTop + yesRect.height;
-
-      // Collision with NO button
-      if (
-        !(futureRight < noRect.left ||
-          futureLeft > noRect.right ||
-          futureBottom < noRect.top ||
-          futureTop > noRect.bottom)
-      ) {
-        // Bounce effect
-        velX = -deltaX * 0.8;
-        velY = -deltaY * 0.8;
-
-        // Trigger jiggle animation
-        yesButton.classList.remove("bounce-animation");
-        void yesButton.offsetWidth; // trigger reflow
-        yesButton.classList.add("bounce-animation");
-      } else {
-        velX = 0;
-        velY = 0;
-        yesX = nextX;
-        yesY = nextY;
-      }
+      yesX += deltaX;
+      yesY += deltaY;
 
       yesButton.style.transform = `translate(${yesX}px, ${yesY}px)`;
       requestAnimationFrame(chaseYes);
