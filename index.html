@@ -31,13 +31,26 @@
         transform: translateY(-10px);
       }
     }
+
+    /* Smooth transitions for buttons */
+    button {
+      transition: all 0.3s ease;
+    }
+
+    /* Prevent YES button overflow */
+    #yesButton {
+      max-width: 90vw;
+      max-height: 90vh;
+      white-space: normal;
+      text-align: center;
+    }
   </style>
 </head>
 
 <body class="gradient-background">
   <div class="flex items-center justify-center h-screen">
     <div class="flex flex-col items-center p-4 text-center">
-      
+
       <img
         id="imageDisplay"
         src="./images/image1.gif"
@@ -103,34 +116,64 @@
       "./images/image7.gif"
     ];
 
+    // Helper function: spawn YES buttons all over screen
+    function spawnYesButtons() {
+      responseButtons.style.display = "none";
+
+      for (let i = 0; i < 20; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = "YES 💖";
+        btn.className =
+          "fixed bg-green-500 hover:bg-green-400 text-white font-bold rounded-md px-6 py-4 text-xl z-50";
+
+        btn.style.top = Math.random() * 90 + "vh";
+        btn.style.left = Math.random() * 90 + "vw";
+
+        btn.addEventListener("click", () => {
+          yesButton.click();
+        });
+
+        document.body.appendChild(btn);
+      }
+    }
+
+    // NO button logic with escalation + final chaos
     noButton.addEventListener('click', () => {
-      if (noClickCount < 5) {
-        noClickCount++;
+      noClickCount++;
 
-        imageDisplay.src =
-          imagePaths[Math.min(noClickCount, imagePaths.length - 1)];
+      imageDisplay.src =
+        imagePaths[Math.min(noClickCount, imagePaths.length - 1)];
 
-        buttonHeight += 35;
-        buttonWidth += 35;
-        fontSize += 25;
+      // Grow YES button aggressively
+      buttonHeight += 30;
+      buttonWidth += 30;
+      fontSize += 15;
 
-        yesButton.style.height = `${buttonHeight}px`;
-        yesButton.style.width = `${buttonWidth}px`;
-        yesButton.style.fontSize = `${fontSize}px`;
+      yesButton.style.height = `${buttonHeight}px`;
+      yesButton.style.width = `${buttonWidth}px`;
+      yesButton.style.fontSize = `${fontSize}px`;
 
-        const messages = [
-          "No",
-          "I will never speak to you again, are you sure?",
-          "Pookie pweaseeeeeeeee 💗",
-          "Don't do this to meeeeeee 😭",
-          "You're breaking my heart 💔",
-          "I'm gonna cry..."
-        ];
+      const messages = [
+        "No",
+        "I will never speak to you again, are you sure?",
+        "Pookie pweaseeeeeeeee 💗",
+        "Don't do this to meeeeeee 😭",
+        "You're breaking my heart 💔",
+        "I'm gonna cry...",
+        "Okay this is getting ridiculous",
+        "You have no choice now 😌"
+      ];
 
-        noButton.textContent = messages[noClickCount];
+      noButton.textContent =
+        messages[Math.min(noClickCount, messages.length - 1)];
+
+      // Final stage chaos
+      if (noClickCount >= 7) {
+        spawnYesButtons();
       }
     });
 
+    // YES button logic
     yesButton.addEventListener('click', () => {
       imageDisplay.src = "./images/image7.gif";
 
@@ -145,11 +188,16 @@
         origin: { y: 0.6 }
       });
 
-      // delayed second message (STEP 4)
+      // Delayed second messages
+      setTimeout(() => {
+        valentineQuestion.textContent =
+          "I can't wait to be your Valentine, Mooncake 🥰";
+      }, 1500);
+
       setTimeout(() => {
         valentineQuestion.textContent =
           "Now you’re stuck with me 😌💘";
-      }, 2000);
+      }, 3500);
     });
   </script>
 </body>
