@@ -125,15 +125,53 @@
     let yesPaddingX = 16;
     let yesPaddingY = 8;
 
+    /* Bounce velocities for collision */
+    let velX = 0;
+    let velY = 0;
+
     document.addEventListener("mousemove", e => {
       mouseX = e.clientX;
       mouseY = e.clientY;
     });
 
+    // YES chase with collision and bounce
     function chaseYes() {
-      const rect = yesButton.getBoundingClientRect();
-      yesX += (mouseX - rect.left - rect.width / 2) * chaseStrength;
-      yesY += (mouseY - rect.top - rect.height / 2) * chaseStrength;
+      const yesRect = yesButton.getBoundingClientRect();
+      const noRect = noButton.getBoundingClientRect();
+
+      // Desired move toward cursor
+      let deltaX = (mouseX - yesRect.left - yesRect.width / 2) * chaseStrength;
+      let deltaY = (mouseY - yesRect.top - yesRect.height / 2) * chaseStrength;
+
+      // Add previous velocity
+      deltaX += velX;
+      deltaY += velY;
+
+      let nextX = yesX + deltaX;
+      let nextY = yesY + deltaY;
+
+      const futureLeft = yesRect.left + nextX - yesX;
+      const futureTop = yesRect.top + nextY - yesY;
+      const futureRight = futureLeft + yesRect.width;
+      const futureBottom = futureTop + yesRect.height;
+
+      // Collision with NO button
+      if (
+        !(futureRight < noRect.left ||
+          futureLeft > noRect.right ||
+          futureBottom < noRect.top ||
+          futureTop > noRect.bottom)
+      ) {
+        // Bounce off NO button
+        velX = -deltaX * 0.8; // reverse and dampen
+        velY = -deltaY * 0.8;
+      } else {
+        velX = 0;
+        velY = 0;
+        yesX = nextX;
+        yesY = nextY;
+      }
+
       yesButton.style.transform = `translate(${yesX}px, ${yesY}px)`;
       requestAnimationFrame(chaseYes);
     }
@@ -168,7 +206,7 @@
       yesButton.style.padding =
         `${yesPaddingY}px ${yesPaddingX}px`;
 
-      /* YES chase speed (2 → 6 ramp) */
+      /* YES chase speed ramp (2 → 6) */
       const progress = Math.min(noClicks / MAX_NO_CLICKS, 1);
       const exponent = 2 + progress * 4;
       chaseStrength = MAX_CHASE * Math.pow(progress, exponent);
