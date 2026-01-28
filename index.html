@@ -125,4 +125,80 @@
           const btn = document.createElement("button");
           btn.textContent = "YES 💖";
           btn.className =
-            "yes-spawn bg-green-500 hover:bg-green-400 text-white font-bold rounded-md px-6 py-4 text
+            "yes-spawn bg-green-500 hover:bg-green-400 text-white font-bold rounded-md px-6 py-4 text-xl";
+
+          btn.style.top = `${y * spacing + Math.random() * 25}px`;
+          btn.style.left = `${x * spacing + Math.random() * 25}px`;
+
+          btn.addEventListener("click", () => {
+            removeSpawnedYesButtons();
+            yesButton.click();
+          });
+
+          document.body.appendChild(btn);
+        }
+      }
+    }
+
+    noButton.addEventListener("click", () => {
+      noClickCount++;
+
+      imageDisplay.src =
+        imagePaths[Math.min(noClickCount, imagePaths.length - 1)];
+
+      buttonHeight += 30;
+      buttonWidth += 30;
+      fontSize += 15;
+
+      yesButton.style.height = `${buttonHeight}px`;
+      yesButton.style.width = `${buttonWidth}px`;
+      yesButton.style.fontSize = `${fontSize}px`;
+
+      const messages = [
+        "No",
+        "I will never speak to you again, are you sure?",
+        "Pookie pweaseeeeeeeee 💗",
+        "Don't do this to meeeeeee 😭",
+        "You're breaking my heart 💔",
+        "I'm gonna cry...",
+        "Okay this is getting ridiculous",
+        "You have no choice now 😌"
+      ];
+
+      noButton.textContent =
+        messages[Math.min(noClickCount, messages.length - 1)];
+
+      if (noClickCount >= 7) {
+        spawnYesButtons();
+      }
+    });
+
+    yesButton.addEventListener("click", () => {
+      removeSpawnedYesButtons();
+
+      imageDisplay.src = "./images/image7.gif";
+
+      valentineQuestion.textContent =
+        "Yayyy!! 💖 You said yes 🥺💗 I'm the luckiest person ever.";
+
+      responseButtons.style.display = "none";
+
+      confetti({
+        particleCount: 180,
+        spread: 90,
+        origin: { y: 0.6 }
+      });
+
+      setTimeout(() => {
+        valentineQuestion.textContent =
+          "I can't wait to be your Valentine, Mooncake 🥰";
+      }, 3500);
+
+      setTimeout(() => {
+        valentineQuestion.textContent =
+          "Now you’re stuck with me 😌💘";
+      }, 7000);
+    });
+  </script>
+</body>
+</html>
